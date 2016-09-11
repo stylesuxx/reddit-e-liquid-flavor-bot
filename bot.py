@@ -18,13 +18,6 @@ processedComments = []
 processor = Processor(pattern, username)
 
 reddit = praw.Reddit(user_agent=userAgent, site_name=username)
-
-# 1.
-# print reddit.get_authorize_url('uniqueKey', 'read submit', True)
-# 2.
-# accessInformation = reddit.get_access_information('token_from_above')
-# print accessInformation
-
 reddit.refresh_access_information()
 
 # Mark items and comments as processed, so we only care for new ones
