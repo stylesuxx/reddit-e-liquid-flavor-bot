@@ -4,7 +4,8 @@ import urllib
 
 
 class ELR(Source):
-    baseUrl = 'http://e-liquid-recipes.com/flavors/?%s'
+    baseUrl = 'http://e-liquid-recipes.com'
+    searchUrl = '%s/%s' % (baseUrl, 'flavors/?%s')
 
     def getTopHit(self, term):
         params = urllib.urlencode({
@@ -12,7 +13,7 @@ class ELR(Source):
             'sort': 'num_recipes',
             'direction': 'desc'
         })
-        url = self.baseUrl % (params)
+        url = self.searchUrl % (params)
 
         f = urllib.urlopen(url)
         tree = html.fromstring(f.read())
