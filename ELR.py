@@ -16,7 +16,7 @@ class ELR(Source):
         # a word
         terms = term.split(' ')
         important = terms[0]
-        regex = r"" + re.escape(important) + "(\s+|$)" # Not working properly for butter on end
+        regex = r"" + re.escape(important) + "(\s+|$)"
         links = filter(lambda link:
                        re.search(regex, link['text'], re.IGNORECASE), links)
 
@@ -32,7 +32,8 @@ class ELR(Source):
         # If none left, be a bit more loose at the second pass
         if not linksSameLength:
             linksSameLength = filter(lambda link:
-                                     len(link['text'].split(' ')) <= len(terms) + 1,
+                                     len(link['text'].split(' ')) ==
+                                     len(terms) + 1,
                                      links)
 
         if linksSameLength:
