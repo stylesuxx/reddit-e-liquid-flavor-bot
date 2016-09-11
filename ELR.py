@@ -9,11 +9,14 @@ class ELR(Source):
     searchUrl = '%s/%s' % (baseUrl, 'flavors/?%s')
 
     def filterLinks(self, links, term):
+        # Only cafe for the 5 top results
+        links = links[0:5]
+
         # Filter away all hits where the first part of the term is only part of
         # a word
         terms = term.split(' ')
         important = terms[0]
-        regex = r"" + re.escape(important) + "[ \n]"
+        regex = r"" + re.escape(important) + "(\s+|$)" # Not working properly for butter on end
         links = filter(lambda link:
                        re.search(regex, link['text'], re.IGNORECASE), links)
 
@@ -26,7 +29,12 @@ class ELR(Source):
                                  len(link['text'].split(' ')) == len(terms),
                                  links)
 
-        # Only apply the same length filter if somthing is left in the list
+        # If none left, be a bit more loose at the second pass
+        if not linksSameLength:
+            linksSameLength = filter(lambda link:
+                                     len(link['text'].split(' ')) <= len(terms) + 1,
+                                     links)
+
         if linksSameLength:
             links = linksSameLength
 
