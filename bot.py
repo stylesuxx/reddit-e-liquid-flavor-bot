@@ -7,13 +7,24 @@ import time
 userAgent = 'E-Juice Flavor Lookup 0.0.0 (by /u/stylesuxx)'
 username = 'flavor_bot'
 subreddit = 'test'
-pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
+
 searchUrlELR = 'http://e-liquid-recipes.com/flavors/?%s'
+
+pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
 limitSubmissions = 25
 pauseSeconds = 60
 
-reddit = praw.Reddit(user_agent=userAgent)
-reddit.login(username=username, disable_warning=True)
+reddit = praw.Reddit(user_agent=userAgent, site_name=username)
+
+# 1.
+# print reddit.get_authorize_url('uniqueKey', 'read submit', True)
+# 2.
+# accessInformation = reddit.get_access_information('token_from_above')
+# print accessInformation
+
+reddit.refresh_access_information()
+
+# reddit.login(username=username, disable_warning=True)
 
 processedSubmissions = []
 processedComments = []
