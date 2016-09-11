@@ -4,7 +4,7 @@ import re
 
 from Processor import Processor
 
-userAgent = 'E-Juice Flavor Lookup 0.0.0 (by /u/stylesuxx)'
+userAgent = 'E-Juice Flavor Lookup 0.0.3 (by /u/stylesuxx)'
 username = 'flavor_bot'
 subreddit = 'test'
 sources = ['ELR', 'ATF']
