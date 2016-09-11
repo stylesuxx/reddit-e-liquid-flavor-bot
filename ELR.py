@@ -9,6 +9,10 @@ class ELR(Source):
     searchUrl = '%s/%s' % (baseUrl, 'flavors/?%s')
 
     def filterLinks(self, links, term):
+        # If only one link is available, we will use it
+        if len(links) == 1:
+            return links[0]
+
         # Only cafe for the 5 top results
         links = links[0:5]
 
