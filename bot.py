@@ -13,6 +13,8 @@ pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
 limitSubmissions = 25
 pauseSeconds = 60
 
+processedSubmissions = []
+processedComments = []
 processor = Processor(pattern, username)
 
 reddit = praw.Reddit(user_agent=userAgent, site_name=username)
@@ -25,18 +27,13 @@ reddit = praw.Reddit(user_agent=userAgent, site_name=username)
 
 reddit.refresh_access_information()
 
-# reddit.login(username=username, disable_warning=True)
-
-processedSubmissions = []
-processedComments = []
-
 # Mark items and comments as processed, so we only care for new ones
-# sub = reddit.get_subreddit(subreddit)
-# for submission in sub.get_new(limit=limitSubmissions):
-#    processedSubmissions.append(submission.id)
+sub = reddit.get_subreddit(subreddit)
+for submission in sub.get_new(limit=limitSubmissions):
+    processedSubmissions.append(submission.id)
 
-# for comment in sub.get_comments():
-#    processedComments.append(comment.id)
+for comment in sub.get_comments():
+    processedComments.append(comment.id)
 
 while True:
     try:
