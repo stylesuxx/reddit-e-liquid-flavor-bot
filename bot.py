@@ -130,6 +130,7 @@ while True:
                 processComment(comment)
                 processedComments.append(comment.id)
 
-    except praw.errors.RateLimitExceeded:
-        print 'Hit rate limit - sleeping for %i seconds...' % (pauseSeconds)
+    except praw.errors.RateLimitExceeded as err:
+        print 'Hit rate limit - sleeping for %i seconds... (%s)' % (
+            pauseSeconds, err)
         time.sleep(pauseSeconds)
