@@ -26,8 +26,8 @@ class Processor:
 
             if len(terms) > 0:
                 reply = self.formatter.reply(terms, links)
-                # submission.add_comment(reply)
-                print reply
+                submission.add_comment(reply)
+                # print reply
                 print 'Processed submission: %s' % submission.id
 
     def comment(self, comment):
@@ -47,8 +47,8 @@ class Processor:
 
                 if len(terms) > 0:
                     reply = self.formatter.reply(terms, links)
-                    # comment.reply(reply)
-                    print reply
+                    comment.reply(reply)
+                    # print reply
                     print 'Processed comment: %s' % comment.id
 
     def buildSearchTerm(self, match):
