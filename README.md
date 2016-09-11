@@ -12,7 +12,7 @@ Some examples:
 * [[Strawberry Ripe by TPA]]  
 * [[ Strawberry (Ripe)]]  
 * [[ Banana Ripe by TPA ]]  
-* [[   Koolada by TPA]]  
+* [[   Koolada 10% by TPA]]  
 * [[Pinkman  ]]  
 * [[   Lime Tahity Cold Pressed by FA   ]]  
 * [[ Wiener Schnitzel ]]  
