@@ -54,4 +54,5 @@ while True:
     except praw.errors.RateLimitExceeded as err:
         print 'Hit rate limit - sleeping for %i seconds... (%s)' % (
             pauseSeconds, err)
+
         time.sleep(pauseSeconds)

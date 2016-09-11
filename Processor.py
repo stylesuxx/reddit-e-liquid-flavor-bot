@@ -1,23 +1,27 @@
 from Formatter import Markdown
 from ELR import ELR
+from ATF import ATF
 
 
 class Processor:
     def __init__(self, pattern, username):
         self.pattern = pattern
         self.username = username
-        self.elr = ELR()
         self.formatter = Markdown()
+
+        self.elr = ELR()
+        self.atf = ATF()
 
     def submission(self, submission):
         matches = self.pattern.findall(submission.selftext)
         if matches:
             terms = self.buildSearchTerms(matches)
             linksELR = map(lambda term: self.elr.getTopHit(term), terms)
-            linksELR = map(lambda link: self.formatter.link(link), linksELR)
+            linksATF = map(lambda term: self.atf.getTopHit(term), terms)
+
             links = {
-                'ELR': linksELR,
-                'ATF': linksELR
+                'ELR': map(lambda link: self.formatter.link(link), linksELR),
+                'ATF': map(lambda link: self.formatter.link(link), linksATF)
             }
 
             if len(terms) > 0:
@@ -32,10 +36,11 @@ class Processor:
             if matches:
                 terms = self.buildSearchTerms(matches)
                 linksELR = map(lambda term: self.elr.getTopHit(term), terms)
-                linksELR = map(lambda link: self.formatter.link(link), linksELR)
+                linksATF = map(lambda term: self.atf.getTopHit(term), terms)
+
                 links = {
-                    'ELR': linksELR,
-                    'ATF': linksELR
+                    'ELR': map(lambda link: self.formatter.link(link), linksELR),
+                    'ATF': map(lambda link: self.formatter.link(link), linksATF)
                 }
 
                 if len(terms) > 0:
@@ -47,7 +52,7 @@ class Processor:
     def buildSearchTerm(self, match):
         term = match.split('by')
         if len(term) > 1:
-            term = '%s (%s)' % (term[0].strip(), term[1].strip())
+            term = '%s %s' % (term[0].strip(), term[1].strip())
             return term
 
         return term[0]
