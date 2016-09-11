@@ -13,7 +13,7 @@ limitSubmissions = 25
 pauseSeconds = 60
 
 reddit = praw.Reddit(user_agent=userAgent)
-reddit.login(username=username)
+reddit.login(username=username, disable_warning=True)
 
 processedSubmissions = []
 processedComments = []
@@ -46,7 +46,10 @@ def buildReply(links):
     reply += '  \n'
     reply += '  \n'
     reply += 'To use, post a flavor name like so: [[ Flavor Name by Business'
-    reply += ' Short Name ]] or [[ Flavor Name ]]'
+    reply += ' Short Name ]] or [[ Flavor Name ]]  \n'
+    reply += 'My source may be found on [github]'
+    reply += '(https://github.com/stylesuxx/reddit-e-liquid-flavor-bot). '
+    reply += 'Feel free to submit bug reports or feature requests.'
 
     return reply
 
@@ -104,21 +107,18 @@ for comment in sub.get_comments():
     processedComments.append(comment.id)
 
 while True:
-    sub = reddit.get_subreddit(subreddit)
-    for submission in sub.get_new(limit=limitSubmissions):
-        if submission.id not in processedSubmissions:
-            try:
+    try:
+        sub = reddit.get_subreddit(subreddit)
+        for submission in sub.get_new(limit=limitSubmissions):
+            if submission.id not in processedSubmissions:
                 processSubmission(submission)
                 processedSubmissions.append(submission.id)
-            except praw.errors.RateLimitExceeded:
-                print 'Hit rate limit...'
-                time.sleep(pauseSeconds)
 
-    for comment in sub.get_comments():
-        if comment.id not in processedComments:
-            try:
+        for comment in sub.get_comments():
+            if comment.id not in processedComments:
                 processComment(comment)
                 processedComments.append(comment.id)
-            except praw.errors.RateLimitExceeded:
-                print 'Hit rate limit...'
-                time.sleep(pauseSeconds)
+
+    except praw.errors.RateLimitExceeded:
+        print 'Hit rate limit - sleeping for %i seconds...' % (pauseSeconds)
+        time.sleep(pauseSeconds)
