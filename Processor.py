@@ -39,14 +39,16 @@ class Processor:
                 linksATF = map(lambda term: self.atf.getTopHit(term), terms)
 
                 links = {
-                    'ELR': map(lambda link: self.formatter.link(link), linksELR),
-                    'ATF': map(lambda link: self.formatter.link(link), linksATF)
+                    'ELR': map(lambda link:
+                               self.formatter.link(link), linksELR),
+                    'ATF': map(lambda link:
+                               self.formatter.link(link), linksATF)
                 }
 
                 if len(terms) > 0:
                     reply = self.formatter.reply(terms, links)
-                    print reply
                     # comment.reply(reply)
+                    print reply
                     print 'Processed comment: %s' % comment.id
 
     def buildSearchTerm(self, match):
