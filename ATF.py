@@ -62,7 +62,7 @@ class ATF(Source):
         allHits = tree.xpath('//tr/td[1]/a')
         allLinks = map(lambda hit: {
             'text': hit.text,
-            'link': hit.attrib['href']},
+            'link': self.baseUrl + hit.attrib['href']},
             allHits)
         link = self.filterLinks(allLinks, term)
 
