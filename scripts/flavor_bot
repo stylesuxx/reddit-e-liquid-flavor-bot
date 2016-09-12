@@ -1,9 +1,11 @@
+#!/usr/bin/python
+
 import argparse
 import praw
 import time
 import re
 
-from Processor import Processor
+from flavor_bot.Processor import Processor
 
 userAgent = 'E-Juice Flavor Lookup 0.0.3 (by /u/stylesuxx)'
 sources = ['ELR', 'ATF']
