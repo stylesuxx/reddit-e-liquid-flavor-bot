@@ -46,8 +46,8 @@ while True:
                submission.author != username):
                 reply = processor.process(submission.selftext)
                 if reply:
-                    # submission.reply(reply)
-                    print reply
+                    submission.reply(reply)
+                    # print reply
                     print 'Processed submission: %s' % submission.id
 
                 processedSubmissions.append(submission.id)
@@ -57,8 +57,8 @@ while True:
                comment.author != username):
                 reply = processor.process(comment.body)
                 if reply:
-                    # comment.reply(reply)
-                    print reply
+                    comment.reply(reply)
+                    # print reply
                     print 'Processed comment: %s' % comment.id
 
                 processedComments.append(comment.id)
