@@ -10,4 +10,4 @@ setup(
     url='https://github.com/stylesuxx/reddit-e-liquid-flavor-bot',
     license='MIT',
     packages=['flavor_bot'],
-    scripts=['scripts/flavor_bot'])
+    scripts=['flavorBot', 'OAuth'])
