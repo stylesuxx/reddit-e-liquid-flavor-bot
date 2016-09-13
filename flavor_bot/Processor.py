@@ -11,8 +11,8 @@ class Processor:
         self.elr = ELR()
         self.atf = ATF()
 
-    def submission(self, submission):
-        matches = self.pattern.findall(submission.selftext)
+    def process(self, text):
+        matches = self.pattern.findall(text)
         if matches:
             terms = self.buildSearchTerms(matches)
             linksELR = map(lambda term: self.elr.getTopHit(term), terms)
@@ -25,29 +25,9 @@ class Processor:
 
             if len(terms) > 0:
                 reply = self.formatter.reply(terms, links)
-                submission.add_comment(reply)
-                # print reply
-                print 'Processed submission: %s' % submission.id
+                return reply
 
-    def comment(self, comment):
-        matches = self.pattern.findall(comment.body)
-        if matches:
-            terms = self.buildSearchTerms(matches)
-            linksELR = map(lambda term: self.elr.getTopHit(term), terms)
-            linksATF = map(lambda term: self.atf.getTopHit(term), terms)
-
-            links = {
-                'ELR': map(lambda link:
-                           self.formatter.link(link), linksELR),
-                'ATF': map(lambda link:
-                           self.formatter.link(link), linksATF)
-            }
-
-            if len(terms) > 0:
-                reply = self.formatter.reply(terms, links)
-                comment.reply(reply)
-                # print reply
-                print 'Processed comment: %s' % comment.id
+            return None
 
     def buildSearchTerm(self, match):
         term = match.split('by')
