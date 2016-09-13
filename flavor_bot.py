@@ -29,34 +29,41 @@ processedComments = []
 processor = Processor(pattern)
 
 reddit = praw.Reddit(user_agent=userAgent, site_name=siteName)
-reddit.refresh_access_information()
-
-username = reddit.get_me()
+username = reddit.user.me()
 
 # Mark items and comments as processed, so we only care for new ones
-sub = reddit.get_subreddit(subreddit)
-for submission in sub.get_new(limit=limitSubmissions):
+sub = reddit.subreddit(subreddit)
+for submission in sub.new(limit=limitSubmissions):
     processedSubmissions.append(submission.id)
 
-for comment in sub.get_comments():
+for comment in sub.comments(limit=limitSubmissions):
     processedComments.append(comment.id)
 
 while True:
     try:
-        sub = reddit.get_subreddit(subreddit)
-        for submission in sub.get_new(limit=limitSubmissions):
+        for submission in sub.new(limit=limitSubmissions):
             if(submission.id not in processedSubmissions and
                submission.author != username):
-                processor.submission(submission)
+                reply = processor.process(submission.selftext)
+                if reply:
+                    # submission.reply(reply)
+                    print reply
+                    print 'Processed submission: %s' % submission.id
+
                 processedSubmissions.append(submission.id)
 
-        for comment in sub.get_comments():
+        for comment in sub.comments(limit=limitSubmissions):
             if(comment.id not in processedComments and
                comment.author != username):
-                processor.comment(comment)
+                reply = processor.process(comment.body)
+                if reply:
+                    # comment.reply(reply)
+                    print reply
+                    print 'Processed comment: %s' % comment.id
+
                 processedComments.append(comment.id)
 
-    except praw.errors.RateLimitExceeded as err:
+    except praw.exceptions.APIException as err:
         print 'Hit rate limit - sleeping for %i seconds... (%s)' % (
             pauseSeconds, err)
 
