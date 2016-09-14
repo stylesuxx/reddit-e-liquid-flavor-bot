@@ -1,27 +1,19 @@
-from Formatter import Markdown
-from ELR import ELR
-from ATF import ATF
-
-
 class Processor:
-    def __init__(self, pattern):
+    def __init__(self, pattern, formatter, sources):
         self.pattern = pattern
-        self.formatter = Markdown()
-
-        self.elr = ELR()
-        self.atf = ATF()
+        self.formatter = formatter
+        self.sources = sources
 
     def process(self, text):
         matches = self.pattern.findall(text)
         if matches:
+            links = {}
             terms = self.buildSearchTerms(matches)
-            linksELR = map(lambda term: self.elr.getTopHit(term), terms)
-            linksATF = map(lambda term: self.atf.getTopHit(term), terms)
 
-            links = {
-                'ELR': map(lambda link: self.formatter.link(link), linksELR),
-                'ATF': map(lambda link: self.formatter.link(link), linksATF)
-            }
+            for source in self.sources:
+                results = map(lambda term: source.getTopHit(term), terms)
+                links[source.name] = map(
+                    lambda link: self.formatter.link(link), results)
 
             if len(terms) > 0:
                 reply = self.formatter.reply(terms, links)
