@@ -1,13 +1,21 @@
 #!/usr/bin/python
 
+from Queue import Queue
+import threading
 import argparse
+import signal
 import praw
 import time
+import sys
 import re
-import threading
-from Queue import Queue
 
 from flavor_bot.Processor import Processor
+
+
+def signal_handler(signal, frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 userAgent = 'E-Juice Flavor Lookup 0.0.3 (by /u/stylesuxx)'
 sources = ['ELR', 'ATF']
