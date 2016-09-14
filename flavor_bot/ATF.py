@@ -5,6 +5,7 @@ import re
 
 
 class ATF(Source):
+    name = 'ATF'
     baseUrl = 'https://alltheflavors.com'
     searchUrl = '%s/%s' % (baseUrl, 'flavors/live_search?%s')
     vendorUrl = '%s/%s' % (baseUrl, 'vendors')

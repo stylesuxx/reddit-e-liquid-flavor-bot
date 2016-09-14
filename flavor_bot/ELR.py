@@ -5,6 +5,7 @@ import re
 
 
 class ELR(Source):
+    name = 'ELR'
     baseUrl = 'http://e-liquid-recipes.com'
     searchUrl = '%s/%s' % (baseUrl, 'flavors/?%s')
 
