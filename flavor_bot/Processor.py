@@ -22,8 +22,18 @@ class Processor:
 
             return None
 
+    def buildSearchTerms(self, matches):
+        matches = map(lambda match: match.strip(), matches)
+        terms = map(lambda match: self.buildSearchTerm(match), matches)
+        terms = set(terms)
+        terms = sorted(terms)
+
+        return terms
+
     def buildSearchTerm(self, match):
         term = match.split('by')
+
+        # Sanitize vendor if available
         if len(term) > 1:
             potentialFlavor = term[0].strip()
             potentialVendor = term[1].strip()
@@ -36,19 +46,19 @@ class Processor:
                         potentialVendor = short
                         break
 
-                print 'Checking for vendor'
-                # Check if the vendor is in short names - use the short name
-                # - else check if vendor matches long name
-
-            term = '%s %s' % (potentialVendor, potentialFlavor)
+            term = '%s %s' % (potentialFlavor, potentialVendor)
             return term
 
+        # Vendor might be provided, but not properly delimited
+        else:
+            searchTerm = term[0]
+            if self.settings['vendors']:
+                vendors = self.settings['vendors']
+                for short in vendors:
+                    if searchTerm.startswith(short.lower()):
+                        flavor = searchTerm[len(short):].strip()
+                        term = '%s %s' % (flavor, short)
+                        return term
+
+        # Search term could not be optimized, no vendor provided
         return term[0]
-
-    def buildSearchTerms(self, matches):
-        matches = map(lambda match: match.strip(), matches)
-        terms = map(lambda match: self.buildSearchTerm(match), matches)
-        terms = set(terms)
-        terms = sorted(terms)
-
-        return terms
