@@ -7,6 +7,21 @@ import re
 class ATF(Source):
     baseUrl = 'https://alltheflavors.com'
     searchUrl = '%s/%s' % (baseUrl, 'flavors/live_search?%s')
+    vendorUrl = '%s/%s' % (baseUrl, 'vendors')
+
+    def getVendorList(self):
+        vendors = {}
+        url = self.vendorUrl
+
+        f = urllib.urlopen(url)
+        tree = html.fromstring(f.read())
+        vendorRows = tree.xpath('//section/div[contains(@class, "row")]')
+        for vendor in vendorRows:
+            fullName = vendor[0].text
+            shortName = vendor[1].text
+            vendors[shortName] = fullName
+
+        return vendors
 
     def filterLinks(self, links, term):
         # If only one link is available, we will use it
