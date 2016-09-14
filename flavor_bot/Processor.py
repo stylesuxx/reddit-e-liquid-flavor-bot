@@ -1,8 +1,9 @@
 class Processor:
-    def __init__(self, pattern, formatter, sources):
+    def __init__(self, pattern, formatter, sources, settings={}):
         self.pattern = pattern
         self.formatter = formatter
         self.sources = sources
+        self.settings = settings
 
     def process(self, text):
         matches = self.pattern.findall(text)
@@ -24,7 +25,22 @@ class Processor:
     def buildSearchTerm(self, match):
         term = match.split('by')
         if len(term) > 1:
-            term = '%s %s' % (term[0].strip(), term[1].strip())
+            potentialFlavor = term[0].strip()
+            potentialVendor = term[1].strip()
+            if self.settings['vendors']:
+                vendors = self.settings['vendors']
+                for short in vendors:
+                    full = vendors[short]
+                    if(short.lower() == potentialVendor.lower() or
+                       full.lower() == potentialVendor.lower()):
+                        potentialVendor = short
+                        break
+
+                print 'Checking for vendor'
+                # Check if the vendor is in short names - use the short name
+                # - else check if vendor matches long name
+
+            term = '%s %s' % (potentialVendor, potentialFlavor)
             return term
 
         return term[0]
