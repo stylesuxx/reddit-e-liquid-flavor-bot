@@ -4,6 +4,7 @@ import argparse
 import praw
 import time
 import re
+import threading
 
 from flavor_bot.Processor import Processor
 
@@ -11,7 +12,6 @@ userAgent = 'E-Juice Flavor Lookup 0.0.3 (by /u/stylesuxx)'
 sources = ['ELR', 'ATF']
 
 pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
-limitSubmissions = 25
 pauseSeconds = 60
 
 parser = argparse.ArgumentParser(description=userAgent)
@@ -24,47 +24,79 @@ args = parser.parse_args()
 siteName = args.siteName
 subreddit = args.subreddit
 
+threads = []
 processedSubmissions = []
 processedComments = []
 processor = Processor(pattern)
 
 reddit = praw.Reddit(user_agent=userAgent, site_name=siteName)
 username = reddit.user.me()
+sub = reddit.subreddit(subreddit)
 
 # Mark items and comments as processed, so we only care for new ones
-sub = reddit.subreddit(subreddit)
-for submission in sub.new(limit=limitSubmissions):
+for submission in sub.new():
     processedSubmissions.append(submission.id)
 
-for comment in sub.comments(limit=limitSubmissions):
+for comment in sub.comments():
     processedComments.append(comment.id)
 
-while True:
-    try:
-        for submission in sub.new(limit=limitSubmissions):
+
+class SubmissionListener(threading.Thread):
+    def run(self):
+        print "Started submission listener..."
+        for submission in sub.stream.submissions():
             if(submission.id not in processedSubmissions and
                submission.author != username):
+                print 'New submission: %s' % (submission.id)
                 reply = processor.process(submission.selftext)
-                if reply:
-                    submission.reply(reply)
-                    # print reply
-                    print 'Processed submission: %s' % submission.id
 
-                processedSubmissions.append(submission.id)
+                try:
+                    if reply:
+                        # submission.reply(reply)
+                        print reply
+                        print 'Processed submission: %s' % submission.id
 
-        for comment in sub.comments(limit=limitSubmissions):
+                    processedSubmissions.append(submission.id)
+
+                except praw.exceptions.APIException as err:
+                    print('Hit rate limit - sleeping for %i seconds... (%s)'
+                          % (pauseSeconds, err))
+
+                    time.sleep(pauseSeconds)
+
+
+class CommentListener(threading.Thread):
+    def run(self):
+        print "Started comment listener..."
+        for comment in sub.stream.comments():
             if(comment.id not in processedComments and
                comment.author != username):
+                print 'New comment: %s' % (comment.id)
                 reply = processor.process(comment.body)
-                if reply:
-                    comment.reply(reply)
-                    # print reply
-                    print 'Processed comment: %s' % comment.id
 
-                processedComments.append(comment.id)
+                try:
+                    if reply:
+                        # comment.reply(reply)
+                        print reply
+                        print 'Processed comment: %s' % comment.id
 
-    except praw.exceptions.APIException as err:
-        print 'Hit rate limit - sleeping for %i seconds... (%s)' % (
-            pauseSeconds, err)
+                    processedComments.append(comment.id)
 
-        time.sleep(pauseSeconds)
+                except praw.exceptions.APIException as err:
+                    print('Hit rate limit - sleeping for %i seconds... (%s)'
+                          % (pauseSeconds, err))
+
+                    time.sleep(pauseSeconds)
+
+
+submissionListener = SubmissionListener()
+commentListener = CommentListener()
+
+submissionListener.daemon = True
+commentListener.daemon = True
+
+submissionListener.start()
+commentListener.start()
+
+while threading.active_count() > 0:
+    time.sleep(0.1)
