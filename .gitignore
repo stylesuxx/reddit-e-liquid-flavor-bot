@@ -4,3 +4,4 @@ dist
 build
 MANIFEST
 files.txt
+.coverage
