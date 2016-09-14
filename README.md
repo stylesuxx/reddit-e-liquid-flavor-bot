@@ -9,9 +9,17 @@ In order to access the Reddit API, client_id, client_secret and a refresh token 
 This has to happen in multiple steps:
 
 * Enable dev account for your bot user, this will give you client_id and client_secret
-* Configure *praw.ini* with **client_id** and **client_secret** from above. Also set **redirect_uri** - this can be anything like *http://127.0.0.1:12345/redirect*
-* Run the OAuth helper to generate a URL to grants permissions and generates the **refresh_token**
-* Add the **refresh_token** to *praw.ini*
+* Set redirect URI to http://localhost:65010/authorize_callback
+* Use the [https://github.com/not-an-aardvark/reddit-oauth-helper](reddit-oauth-helper) to obtain your **permanent** refresh token, select the following scopes: *identity*, *read* and *submit*
+* Configure *praw.ini* with **client_id**, **client_secret** and **refresh_token** from above.
+
+Your *praw.ini* should look something like so:
+```
+[flavor_bot]
+client_id: cxxxGxxxiiiiuQ
+client_secret: 5HJoC5-QXwuZBPT1Kh0a4o3Pb9c
+refresh_token: 18729753-lyp_xe5oOdAHzVvzKWpH7sF2sNg
+```
 
 ## Usage
 To use, post a flavor name like so: [[ Flavor Name by Business Short Name ]] or [[ Flavor Name ]]
