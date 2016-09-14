@@ -6,8 +6,8 @@ class Source:
 
     @abstractproperty
     def name(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def getTopHit(self, searchterm):
-        pass
+        raise NotImplementedError
