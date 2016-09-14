@@ -20,7 +20,7 @@ class Processor:
                 reply = self.formatter.reply(terms, links)
                 return reply
 
-            return None
+        return None
 
     def buildSearchTerms(self, matches):
         matches = map(lambda match: match.strip(), matches)
@@ -37,7 +37,7 @@ class Processor:
         if len(term) > 1:
             potentialFlavor = term[0].strip()
             potentialVendor = term[1].strip()
-            if self.settings['vendors']:
+            if 'vendors' in self.settings:
                 vendors = self.settings['vendors']
                 for short in vendors:
                     full = vendors[short]
@@ -52,7 +52,7 @@ class Processor:
         # Vendor might be provided, but not properly delimited
         else:
             searchTerm = term[0]
-            if self.settings['vendors']:
+            if 'vendors' in self.settings:
                 vendors = self.settings['vendors']
                 for short in vendors:
                     if searchTerm.startswith(short.lower()):
