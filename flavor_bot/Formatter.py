@@ -25,7 +25,8 @@ class Markdown:
         reply += '  \n'
         reply += '  \n'
         reply += ('To use, post a flavor name like so: [[ Flavor Name by '
-                  'Business Short Name ]] or [[ Flavor Name ]]  \n')
+                  'Vendor Short Name ]], [[ Flavor Name ]] or '
+                  '[[ Vendor Short Name Flavor Name ]].  \n')
         reply += ('My source may be found on [github]'
                   '(https://github.com/stylesuxx/reddit-e-liquid-flavor-bot). '
                   'Feel free to submit bug reports or feature requests.')
