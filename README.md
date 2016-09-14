@@ -10,7 +10,7 @@ This has to happen in multiple steps:
 
 * Enable dev account for your bot user, this will give you client_id and client_secret
 * Set redirect URI to http://localhost:65010/authorize_callback
-* Use the [https://github.com/not-an-aardvark/reddit-oauth-helper](reddit-oauth-helper) to obtain your **permanent** refresh token, select the following scopes: *identity*, *read* and *submit*
+* Use the [reddit-oauth-helper](https://github.com/not-an-aardvark/reddit-oauth-helper) to obtain your **permanent** refresh token, select the following scopes: *identity*, *read* and *submit*
 * Configure *praw.ini* with **client_id**, **client_secret** and **refresh_token** from above.
 
 Your *praw.ini* should look something like so:
