@@ -20,7 +20,10 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 userAgent = 'E-Juice Flavor Lookup 0.0.3 (by /u/stylesuxx)'
-sources = [ELR(), ATF()]
+
+elr = ELR()
+atf = ATF()
+sources = [elr, atf]
 
 formatter = Markdown()
 pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
@@ -41,7 +44,9 @@ workers = 1
 
 processedSubmissions = []
 processedComments = []
-processor = Processor(pattern, formatter, sources)
+processor = Processor(pattern, formatter, sources, {
+                        'vendors': atf.getVendorList()
+                      })
 
 reddit = praw.Reddit(user_agent=userAgent, site_name=siteName)
 username = reddit.user.me()
@@ -67,13 +72,14 @@ def worker():
         if(reply):
             while not posted:
                 try:
-                    print reply
-                    # op.reply(reply)
+                    # print reply
+                    op.reply(reply)
                     posted = True
+                    print 'Replied to: %s' % op.id
 
                 except praw.exceptions.APIException as err:
-                    print('Hit rate limit - sleeping for %i seconds... (%s)'
-                          % (pauseSeconds, err))
+                    print('Hit rate limit - sleeping for %i seconds...'
+                          % (pauseSeconds))
                     time.sleep(pauseSeconds)
 
         queue.task_done()
@@ -84,8 +90,9 @@ class SubmissionListener(threading.Thread):
         for submission in sub.stream.submissions():
             if(submission.id not in processedSubmissions and
                submission.author != username):
-                queue.put({'op': comment, 'text': submission.selftext})
+                queue.put({'op': submission, 'text': submission.selftext})
                 processedSubmissions.append(submission.id)
+                print 'Added submission to queue: %s' % submission.id
 
 
 class CommentListener(threading.Thread):
@@ -95,6 +102,7 @@ class CommentListener(threading.Thread):
                comment.author != username):
                 queue.put({'op': comment, 'text': comment.body})
                 processedComments.append(comment.id)
+                print 'Added comment to queue: %s' % comment.id
 
 
 submissionListener = SubmissionListener()
