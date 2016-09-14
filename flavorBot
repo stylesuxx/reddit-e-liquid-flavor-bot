@@ -10,6 +10,8 @@ import sys
 import re
 
 from flavor_bot.Processor import Processor
+from flavor_bot.Formatter import Markdown
+from flavor_bot.Source import ATF, ELR
 
 
 def signal_handler(signal, frame):
@@ -18,8 +20,9 @@ def signal_handler(signal, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 userAgent = 'E-Juice Flavor Lookup 0.0.3 (by /u/stylesuxx)'
-sources = ['ELR', 'ATF']
+sources = [ELR(), ATF()]
 
+formatter = Markdown()
 pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
 pauseSeconds = 60
 
@@ -38,7 +41,7 @@ workers = 1
 
 processedSubmissions = []
 processedComments = []
-processor = Processor(pattern)
+processor = Processor(pattern, formatter, sources)
 
 reddit = praw.Reddit(user_agent=userAgent, site_name=siteName)
 username = reddit.user.me()
