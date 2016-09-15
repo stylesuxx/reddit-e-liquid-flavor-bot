@@ -62,12 +62,15 @@ processor = Processor(pattern, formatter, sources, {
                         'vendors': atf.getVendorList()
                       })
 
-# Mark items and comments as processed, so we only care for new ones
 for submission in sub.new():
     processedSubmissions.append(submission.id)
 
+print 'Marked old submissions as processed...'
+
 for comment in sub.comments():
     processedComments.append(comment.id)
+
+print 'Marked old comments as processed...'
 
 
 def worker():
@@ -97,37 +100,57 @@ def worker():
 
 class SubmissionListener(threading.Thread):
     def run(self):
-        for submission in sub.stream.submissions():
-            if(submission.id not in processedSubmissions and
-               submission.author != username):
-                queue.put({'op': submission, 'text': submission.selftext})
-                processedSubmissions.append(submission.id)
-                print 'Added submission to queue: %s' % submission.id
+        while True:
+            try:
+                for submission in sub.stream.submissions():
+                    if(submission.id not in processedSubmissions and
+                       submission.author != username):
+                        queue.put({
+                            'op': submission,
+                            'text': submission.selftext})
+                        processedSubmissions.append(submission.id)
+                        print 'Added submission to queue: %s' % submission.id
+
+            except RequestException as e:
+                print 'Request failed: %s' % (e)
+                print('Sleeping for %i seconds...' % (pauseSeconds))
+                time.sleep(pauseSeconds)
 
 
 class CommentListener(threading.Thread):
     def run(self):
-        for comment in sub.stream.comments():
-            if(comment.id not in processedComments and
-               comment.author != username):
-                queue.put({'op': comment, 'text': comment.body})
-                processedComments.append(comment.id)
-                print 'Added comment to queue: %s' % comment.id
+        while True:
+            try:
+                for comment in sub.stream.comments():
+                    if(comment.id not in processedComments and
+                       comment.author != username):
+                        queue.put({
+                            'op': comment,
+                            'text': comment.body})
+                        processedComments.append(comment.id)
+                        print 'Added comment to queue: %s' % comment.id
 
-
-submissionListener = SubmissionListener()
-commentListener = CommentListener()
-
-submissionListener.daemon = True
-commentListener.daemon = True
-
-submissionListener.start()
-commentListener.start()
+            except RequestException as e:
+                print 'Request failed: %s' % (e)
+                print('Sleeping for %i seconds...' % (pauseSeconds))
+                time.sleep(pauseSeconds)
 
 for i in range(workers):
     thread = threading.Thread(target=worker)
     thread.daemon = True
     thread.start()
+    print 'Started worker #%i...' % i
+
+submissionListener = SubmissionListener()
+submissionListener.daemon = True
+submissionListener.start()
+print 'Submission listener attached...'
+
+commentListener = CommentListener()
+commentListener.daemon = True
+commentListener.start()
+print 'Comment listener attached...'
+
 
 while threading.active_count() > 0:
     time.sleep(0.1)
