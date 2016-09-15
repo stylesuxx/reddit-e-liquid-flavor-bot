@@ -19,8 +19,8 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-
-userAgent = 'E-Juice Flavor Lookup 0.0.3 (by /u/stylesuxx)'
+version = '0.0.4'
+userAgent = 'E-Juice Flavor Lookup %s (by /u/stylesuxx)' % (version)
 
 elr = ELR()
 atf = ATF()

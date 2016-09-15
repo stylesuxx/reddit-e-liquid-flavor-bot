@@ -1,5 +1,5 @@
 # Reddit E-Juice Flavor Lookup Bot
-[![Build Status](https://travis-ci.org/stylesuxx/reddit-e-liquid-flavor-bot.svg?branch=develop)](https://travis-ci.org/stylesuxx/reddit-e-liquid-flavor-bot)
+[![Build Status](https://travis-ci.org/stylesuxx/reddit-e-liquid-flavor-bot.svg?branch=master)](https://travis-ci.org/stylesuxx/reddit-e-liquid-flavor-bot)
 
 > Post links to flavors mentioned in posts.
 
