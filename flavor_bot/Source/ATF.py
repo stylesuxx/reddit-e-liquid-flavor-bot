@@ -14,14 +14,18 @@ class ATF(Source):
         vendors = {}
         url = self.vendorUrl
 
-        f = urllib.urlopen(url)
-        tree = html.fromstring(f.read())
+        try:
+            f = urllib.urlopen(url)
+            tree = html.fromstring(f.read())
 
-        vendorRows = tree.xpath('//section/div[contains(@class, "row")]')
-        for vendor in vendorRows:
-            fullName = vendor[0].text
-            shortName = vendor[1].text
-            vendors[shortName] = fullName
+            vendorRows = tree.xpath('//section/div[contains(@class, "row")]')
+            for vendor in vendorRows:
+                fullName = vendor[0].text
+                shortName = vendor[1].text
+                vendors[shortName] = fullName
+
+        except IOError:
+            print 'Failed getting vendor list from ATF.'
 
         return vendors
 
@@ -68,17 +72,21 @@ class ATF(Source):
         params = urllib.urlencode({'name_like': term})
         url = self.searchUrl % (params)
 
-        f = urllib.urlopen(url)
-        tree = html.fromstring(f.read())
+        try:
+            f = urllib.urlopen(url)
+            tree = html.fromstring(f.read())
 
-        hits = tree.xpath('//tr/td[1]/a')
-        links = map(lambda hit: {
-            'text': hit.text,
-            'link': self.baseUrl + hit.attrib['href']
-        }, hits)
+            hits = tree.xpath('//tr/td[1]/a')
+            links = map(lambda hit: {
+                'text': hit.text,
+                'link': self.baseUrl + hit.attrib['href']
+            }, hits)
 
-        link = self.filterLinks(links, term)
-        if link:
-            return {'text': link['text'], 'link': link['link']}
+            link = self.filterLinks(links, term)
+            if link:
+                return {'text': link['text'], 'link': link['link']}
+
+        except IOError:
+            print 'Failed connectiong to %s' % self.name
 
         return None

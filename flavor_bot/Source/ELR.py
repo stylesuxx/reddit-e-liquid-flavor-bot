@@ -56,18 +56,22 @@ class ELR(Source):
         })
         url = self.searchUrl % (params)
 
-        f = urllib.urlopen(url)
-        tree = html.fromstring(f.read())
+        try:
+            f = urllib.urlopen(url)
+            tree = html.fromstring(f.read())
 
-        allHits = tree.xpath('//table[contains(@class, "flavorlist")]'
-                             '/tbody/tr/td[1]/span/a')
-        allLinks = map(lambda hit: {
-            'text': hit.text,
-            'link': hit.attrib['href']
-        }, allHits)
+            allHits = tree.xpath('//table[contains(@class, "flavorlist")]'
+                                 '/tbody/tr/td[1]/span/a')
+            allLinks = map(lambda hit: {
+                'text': hit.text,
+                'link': hit.attrib['href']
+            }, allHits)
 
-        link = self.filterLinks(allLinks, term)
-        if link:
-            return {'text': link['text'], 'link': link['link']}
+            link = self.filterLinks(allLinks, term)
+            if link:
+                return {'text': link['text'], 'link': link['link']}
+
+        except IOError:
+            print 'Failed connectiong to %s' % self.name
 
         return None
