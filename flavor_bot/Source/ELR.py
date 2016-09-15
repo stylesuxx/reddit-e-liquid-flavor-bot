@@ -5,10 +5,15 @@ import re
 
 
 class ELR(Source):
+    name = 'ELR'
     baseUrl = 'http://e-liquid-recipes.com'
     searchUrl = '%s/%s' % (baseUrl, 'flavors/?%s')
 
     def filterLinks(self, links, term):
+        # If only one link is available, we will use it
+        if len(links) == 1:
+            return links[0]
+
         # Only cafe for the 5 top results
         links = links[0:5]
 
@@ -25,19 +30,18 @@ class ELR(Source):
             return links[0]
 
         # Filter away all hits that have more terms than the original term
-        linksSameLength = filter(lambda link:
-                                 len(link['text'].split(' ')) == len(terms),
-                                 links)
+        sameLength = filter(lambda link:
+                            len(link['text'].split(' ')) == len(terms),
+                            links)
 
         # If none left, be a bit more loose at the second pass
-        if not linksSameLength:
-            linksSameLength = filter(lambda link:
-                                     len(link['text'].split(' ')) <=
-                                     len(terms) + 2,
-                                     links)
+        if not sameLength:
+            sameLength = filter(lambda link:
+                                len(link['text'].split(' ')) <= len(terms) + 2,
+                                links)
 
-        if linksSameLength:
-            links = linksSameLength
+        if sameLength:
+            links = sameLength
 
         if links:
             return links[0]
@@ -52,18 +56,22 @@ class ELR(Source):
         })
         url = self.searchUrl % (params)
 
-        f = urllib.urlopen(url)
-        tree = html.fromstring(f.read())
+        try:
+            f = urllib.urlopen(url)
+            tree = html.fromstring(f.read())
 
-        allHits = tree.xpath('//table[contains(@class, "flavorlist")]'
-                             '/tbody/tr/td[1]/span/a')
-        allLinks = map(lambda hit: {
-            'text': hit.text,
-            'link': hit.attrib['href']},
-            allHits)
-        link = self.filterLinks(allLinks, term)
+            allHits = tree.xpath('//table[contains(@class, "flavorlist")]'
+                                 '/tbody/tr/td[1]/span/a')
+            allLinks = map(lambda hit: {
+                'text': hit.text,
+                'link': hit.attrib['href']
+            }, allHits)
 
-        if link:
-            return {'text': link['text'], 'link': link['link']}
+            link = self.filterLinks(allLinks, term)
+            if link:
+                return {'text': link['text'], 'link': link['link']}
+
+        except IOError:
+            print 'Failed connectiong to %s' % self.name
 
         return None

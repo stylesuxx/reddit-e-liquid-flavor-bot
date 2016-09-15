@@ -1,0 +1,133 @@
+#!/usr/bin/python
+
+from Queue import Queue
+import threading
+import argparse
+import prawcore
+import signal
+import praw
+import time
+import sys
+import re
+
+from flavor_bot.Processor import Processor
+from flavor_bot.Formatter import Markdown
+from flavor_bot.Source import ATF, ELR
+
+
+def signal_handler(signal, frame):
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+version = '0.0.4'
+userAgent = 'E-Juice Flavor Lookup %s (by /u/stylesuxx)' % (version)
+
+elr = ELR()
+atf = ATF()
+sources = [elr, atf]
+
+formatter = Markdown()
+pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
+pauseSeconds = 60
+
+parser = argparse.ArgumentParser(description=userAgent)
+parser.add_argument('siteName', metavar='SITENAME',
+                    help='Site name to use from the config')
+parser.add_argument('-s', '--sub', dest='subreddit', metavar='SUB',
+                    default='test', help='Subreddit to monitor')
+
+args = parser.parse_args()
+siteName = args.siteName
+subreddit = args.subreddit
+
+queue = Queue()
+workers = 1
+
+try:
+    reddit = praw.Reddit(user_agent=userAgent, site_name=siteName)
+    username = reddit.user.me()
+    sub = reddit.subreddit(subreddit)
+
+except prawcore.exceptions.RequestException:
+    print 'Name resolution failed. Are you offline?'
+    sys.exit(1)
+
+except prawcore.exceptions.ResponseException:
+    print 'Login failed. Check client_id, client_secret and refresh_token.'
+    sys.exit(1)
+
+processedSubmissions = []
+processedComments = []
+processor = Processor(pattern, formatter, sources, {
+                        'vendors': atf.getVendorList()
+                      })
+
+# Mark items and comments as processed, so we only care for new ones
+for submission in sub.new():
+    processedSubmissions.append(submission.id)
+
+for comment in sub.comments():
+    processedComments.append(comment.id)
+
+
+def worker():
+    while True:
+        item = queue.get()
+
+        op = item['op']
+        text = item['text']
+        posted = False
+
+        reply = processor.process(item['text'])
+        if(reply):
+            while not posted:
+                try:
+                    # print reply
+                    op.reply(reply)
+                    posted = True
+                    print 'Replied to: %s' % op.id
+
+                except praw.exceptions.APIException as err:
+                    print('Hit rate limit - sleeping for %i seconds...'
+                          % (pauseSeconds))
+                    time.sleep(pauseSeconds)
+
+        queue.task_done()
+
+
+class SubmissionListener(threading.Thread):
+    def run(self):
+        for submission in sub.stream.submissions():
+            if(submission.id not in processedSubmissions and
+               submission.author != username):
+                queue.put({'op': submission, 'text': submission.selftext})
+                processedSubmissions.append(submission.id)
+                print 'Added submission to queue: %s' % submission.id
+
+
+class CommentListener(threading.Thread):
+    def run(self):
+        for comment in sub.stream.comments():
+            if(comment.id not in processedComments and
+               comment.author != username):
+                queue.put({'op': comment, 'text': comment.body})
+                processedComments.append(comment.id)
+                print 'Added comment to queue: %s' % comment.id
+
+
+submissionListener = SubmissionListener()
+commentListener = CommentListener()
+
+submissionListener.daemon = True
+commentListener.daemon = True
+
+submissionListener.start()
+commentListener.start()
+
+for i in range(workers):
+    thread = threading.Thread(target=worker)
+    thread.daemon = True
+    thread.start()
+
+while threading.active_count() > 0:
+    time.sleep(0.1)
