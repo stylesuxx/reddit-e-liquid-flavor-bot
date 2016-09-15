@@ -9,17 +9,18 @@ class Markdown:
         reply = '| Searchterm |'
         for key in links:
             reply += ' %s Top Hit |' % (key)
-        reply += '  \n'
 
+        reply += '  \n'
         reply += '| ---------- |'
         for key in links:
             reply += ' ----------- |'
-        reply += '  \n'
 
+        reply += '  \n'
         for i in range(0, len(terms)):
             reply += '| %s |' % (terms[i])
             for key in links:
                 reply += ' %s |' % (links[key][i])
+
             reply += '  \n'
 
         reply += '  \n'

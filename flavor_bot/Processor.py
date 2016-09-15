@@ -27,7 +27,6 @@ class Processor:
         terms = map(lambda match: self.buildSearchTerm(match), matches)
         terms = set(terms)
         terms = sorted(terms)
-
         return terms
 
     def buildSearchTerm(self, match):

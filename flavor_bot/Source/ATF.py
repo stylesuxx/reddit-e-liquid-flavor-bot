@@ -16,6 +16,7 @@ class ATF(Source):
 
         f = urllib.urlopen(url)
         tree = html.fromstring(f.read())
+
         vendorRows = tree.xpath('//section/div[contains(@class, "row")]')
         for vendor in vendorRows:
             fullName = vendor[0].text
@@ -45,19 +46,18 @@ class ATF(Source):
             return links[0]
 
         # Filter away all hits that have more terms than the original term
-        linksSameLength = filter(lambda link:
-                                 len(link['text'].split(' ')) == len(terms),
-                                 links)
+        sameLength = filter(lambda link:
+                            len(link['text'].split(' ')) == len(terms),
+                            links)
 
         # If none left, be a bit more loose at the second pass
-        if not linksSameLength:
-            linksSameLength = filter(lambda link:
-                                     len(link['text'].split(' ')) <=
-                                     len(terms) + 2,
-                                     links)
+        if not sameLength:
+            sameLength = filter(lambda link:
+                                len(link['text'].split(' ')) <= len(terms) + 2,
+                                links)
 
-        if linksSameLength:
-            links = linksSameLength
+        if sameLength:
+            links = sameLength
 
         if links:
             return links[0]
@@ -65,23 +65,19 @@ class ATF(Source):
         return None
 
     def getTopHit(self, term):
-        params = urllib.urlencode({
-            'name_like': term
-        })
+        params = urllib.urlencode({'name_like': term})
         url = self.searchUrl % (params)
 
         f = urllib.urlopen(url)
         tree = html.fromstring(f.read())
-        # text = tree.xpath('//tr[1]/td[1]/a/text()')
-        # link = tree.xpath('//tr[1]/td[1]/a/@href')
 
-        allHits = tree.xpath('//tr/td[1]/a')
-        allLinks = map(lambda hit: {
+        hits = tree.xpath('//tr/td[1]/a')
+        links = map(lambda hit: {
             'text': hit.text,
-            'link': self.baseUrl + hit.attrib['href']},
-            allHits)
-        link = self.filterLinks(allLinks, term)
+            'link': self.baseUrl + hit.attrib['href']
+        }, hits)
 
+        link = self.filterLinks(links, term)
         if link:
             return {'text': link['text'], 'link': link['link']}
 
