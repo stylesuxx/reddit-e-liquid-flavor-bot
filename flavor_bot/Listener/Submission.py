@@ -1,7 +1,7 @@
 from requests.exceptions import RequestException
-from Listener import Listener
 import time
 
+from Listener import Listener
 from flavor_bot.helpers import log
 
 
