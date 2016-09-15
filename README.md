@@ -23,7 +23,7 @@ refresh_token: 18729753-lyp_xe5oOdAHzVvzKWpH7sF2sNg
 ```
 
 ## Usage
-To use, post a flavor name like so: [[ Flavor Name by Business Short Name ]] or [[ Flavor Name ]]
+To use, post a flavor name like so: [[ Flavor Name by Vendor Short Name ]] [[ Vendor Short Name Flavor Name ]] or [[ Flavor Name ]]
 
 Some examples:
 ```
@@ -45,4 +45,6 @@ Some examples:
 * [[ Vienna Cream by FA ]]  
 * [[ Vanilla Cupcake by CAP ]]  
 * [[ Butter by FA ]]
+* [[ cap Cucumber ]]
+* [[ tfa green apple ]]
 ```
