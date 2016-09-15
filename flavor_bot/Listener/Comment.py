@@ -15,9 +15,8 @@ class Comment(Listener):
                 for comment in self.stream():
                     if(comment.id not in self.processed and
                        comment.author != self.author):
-                        self.action({
-                            'op': comment,
-                            'text': comment.body})
+                        text = comment.body
+                        self.action({'op': comment, 'text': text})
                         self.processed.append(comment.id)
                         log('Added comment to queue: %s' % comment.id)
 

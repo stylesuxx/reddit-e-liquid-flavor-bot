@@ -15,9 +15,8 @@ class Submission(Listener):
                 for submission in self.stream():
                     if(submission.id not in self.processed and
                        submission.author != self.author):
-                        self.action({
-                            'op': submission,
-                            'text': submission.selftext})
+                        text = submission.selftext
+                        self.action({'op': submission, 'text': text})
                         self.processed.append(submission.id)
                         log('Added submission to queue: %s' % submission.id)
 
