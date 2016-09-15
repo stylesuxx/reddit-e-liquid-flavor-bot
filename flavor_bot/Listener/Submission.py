@@ -17,7 +17,7 @@ class Submission(Listener):
                     text = submission.selftext
                     self.action({'op': submission, 'text': text})
                     self.processed.append(submission.id)
-                    log('Added submission to queue: %s' % submission.id)
+                    log('Added submission to queue: %s' % (submission.id))
 
         except RequestException as e:
             log('Request failed: %s' % (e))

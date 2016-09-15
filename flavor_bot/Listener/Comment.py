@@ -17,7 +17,7 @@ class Comment(Listener):
                     text = comment.body
                     self.action({'op': comment, 'text': text})
                     self.processed.append(comment.id)
-                    log('Added comment to queue: %s' % comment.id)
+                    log('Added comment to queue: %s' % (comment.id))
 
         except RequestException as e:
             log('Request failed: %s' % (e))
