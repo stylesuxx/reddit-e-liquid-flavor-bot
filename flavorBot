@@ -3,6 +3,7 @@
 from Queue import Queue
 import threading
 import argparse
+import prawcore
 import signal
 import praw
 import time
@@ -42,15 +43,24 @@ subreddit = args.subreddit
 queue = Queue()
 workers = 1
 
+try:
+    reddit = praw.Reddit(user_agent=userAgent, site_name=siteName)
+    username = reddit.user.me()
+    sub = reddit.subreddit(subreddit)
+
+except prawcore.exceptions.RequestException:
+    print 'Name resolution failed. Are you offline?'
+    sys.exit(1)
+
+except prawcore.exceptions.ResponseException:
+    print 'Login failed. Check client_id, client_secret and refresh_token.'
+    sys.exit(1)
+
 processedSubmissions = []
 processedComments = []
 processor = Processor(pattern, formatter, sources, {
                         'vendors': atf.getVendorList()
                       })
-
-reddit = praw.Reddit(user_agent=userAgent, site_name=siteName)
-username = reddit.user.me()
-sub = reddit.subreddit(subreddit)
 
 # Mark items and comments as processed, so we only care for new ones
 for submission in sub.new():
