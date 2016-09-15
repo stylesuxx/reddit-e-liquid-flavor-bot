@@ -9,8 +9,10 @@ class Listener(threading.Thread):
         self.stream = stream
         self.action = action
         self.processed = []
+
         self.timeout = 0
         self.author = ''
+
         super(Listener, self).__init__()
 
     def setProcessed(self, processed):
