@@ -26,9 +26,11 @@ userAgent = 'E-Juice Flavor Lookup %s (by /u/stylesuxx)' % (version)
 # mapping. This are aliases vor ATF's vendor names over on ELR
 elrAlias = {'INW': 'Inawera'}
 
+atf = ATF()
+
 elr = ELR()
 elr.setVendorAlias(elrAlias)
-atf = ATF()
+
 processed = []
 sources = [elr, atf]
 formatter = Markdown()
