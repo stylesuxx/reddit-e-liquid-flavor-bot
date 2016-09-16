@@ -27,7 +27,7 @@ class TestListener:
         self.counter += 1
 
     def throw(self, item):
-        raise prawcore.exceptions.RequestException(None, None, None)
+        raise prawcore.exceptions.RequestException(Exception, None, None)
 
     def test_comment_listener(self):
         listener = Comment(self.feeder, self.handler)
