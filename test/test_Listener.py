@@ -31,6 +31,8 @@ class TestListener:
 
     def test_comment_listener(self):
         listener = Comment(self.feeder, self.handler)
+        listener.setAuthor('foo')
+        listener.setTimeout(60)
         listener.start()
         listener.join()
 
