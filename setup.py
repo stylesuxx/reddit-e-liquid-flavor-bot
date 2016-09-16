@@ -1,8 +1,10 @@
 from distutils.core import setup
 
+from flavor_bot import __version__
+
 setup(
     name='flavor_bot',
-    version='0.0.3',
+    version=__version__,
     description='Post links to flavors mentioned in posts.',
     long_description=open('README.md').read(),
     author='Chris Landa',

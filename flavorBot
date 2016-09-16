@@ -15,13 +15,14 @@ from flavor_bot.Listener import Submission, Comment
 from flavor_bot.Processor import Processor
 from flavor_bot.Formatter import Markdown
 from flavor_bot.Source import ATF, ELR
+from flavor_bot import __version__
 from flavor_bot.Pool import Pool
 import flavor_bot.settings
 
+
 signal.signal(signal.SIGINT, signalHandler)
 
-version = '0.0.4'
-userAgent = 'E-Juice Flavor Lookup %s (by /u/stylesuxx)' % (version)
+userAgent = 'E-Juice Flavor Lookup %s (by /u/stylesuxx)' % (__version__)
 
 # Regarding vendors, ATF is our source of truth, since it has the better vendor
 # mapping. This are aliases vor ATF's vendor names over on ELR
