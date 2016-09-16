@@ -85,3 +85,21 @@ class TestProcessor:
                 'capella-sugar-cookie') in result
         assert 'http://e-liquid-recipes.com/flavor/4871' in result
         assert '| Sugar Cookie CAP |' in result
+
+    def test_vendor_alias_elr(self):
+        atf = ATF()
+        elr = ELR()
+        formatter = Markdown()
+        alias = {'INW': 'Inawera'}
+
+        elr.setVendorAlias(alias)
+        sources = [elr]
+
+        pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
+        processor = Processor(pattern, formatter, sources, {
+                'vendors': atf.getVendorList()})
+        result = processor.process('[[ INW Biscuit ]]')
+
+        print result
+        assert ('http://e-liquid-recipes.com/flavor/13528') in result
+        assert '| Biscuit INW |' in result

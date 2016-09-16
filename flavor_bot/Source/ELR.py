@@ -51,7 +51,7 @@ class ELR(Source):
 
     def getTopHit(self, term):
         params = urllib.urlencode({
-            'q': term,
+            'q': self.aliasVendors(term),
             'sort': 'num_recipes',
             'direction': 'desc'
         })

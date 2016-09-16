@@ -22,7 +22,12 @@ signal.signal(signal.SIGINT, signalHandler)
 version = '0.0.4'
 userAgent = 'E-Juice Flavor Lookup %s (by /u/stylesuxx)' % (version)
 
+# Regarding vendors, ATF is our source of truth, since it has the better vendor
+# mapping. This are aliases vor ATF's vendor names over on ELR
+elrAlias = {'INW': 'Inawera'}
+
 elr = ELR()
+elr.setVendorAlias(elrAlias)
 atf = ATF()
 processed = []
 sources = [elr, atf]

@@ -70,7 +70,7 @@ class ATF(Source):
         return None
 
     def getTopHit(self, term):
-        params = urllib.urlencode({'name_like': term})
+        params = urllib.urlencode({'name_like': self.aliasVendors(term)})
         url = self.searchUrl % (params)
 
         try:
