@@ -25,3 +25,17 @@ class TestSource:
         hit = elr.getTopHit('Strawberry Ripe TPA')
         assert_equal(hit['text'], 'Strawberry (Ripe) (TPA)')
         assert_equal(hit['link'], 'http://e-liquid-recipes.com/flavor/5361')
+
+    def test_atf_unavailable(self):
+        atf = ATF()
+        atf.searchUrl = 'http://invalid/%s'
+
+        hit = atf.getTopHit('Strawberry Ripe TPA')
+        assert_equal(hit, None)
+
+    def test_elr_unavailable(self):
+        elr = ELR()
+        elr.searchUrl = 'http://invalid/%s'
+
+        hit = elr.getTopHit('Strawberry Ripe TPA')
+        assert_equal(hit, None)
