@@ -26,7 +26,8 @@ class TestProcessor:
         sources = [atf, elr]
 
         pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
-        processor = Processor(pattern, formatter, sources)
+        processor = Processor(pattern, formatter, sources, {
+                'vendors': atf.getVendorList()})
         result = processor.process('[[Strawberry ripe]]')
 
         print result
@@ -41,13 +42,15 @@ class TestProcessor:
         sources = [atf, elr]
 
         pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
-        processor = Processor(pattern, formatter, sources)
+        processor = Processor(pattern, formatter, sources, {
+                'vendors': atf.getVendorList()})
         result = processor.process('[[TPA Strawberry ripe]]')
 
         print result
         assert ('https://alltheflavors.com/flavors'
                 '/the-flavor-apprentice-strawberry-ripe') in result
         assert 'http://e-liquid-recipes.com/flavor/5361' in result
+        assert '| Strawberry ripe TPA |' in result
 
     def test_vendor_delimited(self):
         atf = ATF()
@@ -56,13 +59,15 @@ class TestProcessor:
         sources = [atf, elr]
 
         pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
-        processor = Processor(pattern, formatter, sources)
+        processor = Processor(pattern, formatter, sources, {
+                'vendors': atf.getVendorList()})
         result = processor.process('[[Strawberry ripe by TPA]]')
 
         print result
         assert ('https://alltheflavors.com/flavors'
                 '/the-flavor-apprentice-strawberry-ripe') in result
         assert 'http://e-liquid-recipes.com/flavor/5361' in result
+        assert '| Strawberry ripe TPA |' in result
 
     def test_vendor_prefixed_1(self):
         atf = ATF()
@@ -71,10 +76,12 @@ class TestProcessor:
         sources = [atf, elr]
 
         pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
-        processor = Processor(pattern, formatter, sources)
+        processor = Processor(pattern, formatter, sources, {
+                'vendors': atf.getVendorList()})
         result = processor.process('[[ CAP Sugar Cookie ]]')
 
         print result
         assert ('https://alltheflavors.com/flavors/'
                 'capella-sugar-cookie') in result
         assert 'http://e-liquid-recipes.com/flavor/4871' in result
+        assert '| Sugar Cookie CAP |' in result
