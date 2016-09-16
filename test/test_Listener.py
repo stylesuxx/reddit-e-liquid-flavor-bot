@@ -1,6 +1,6 @@
 from flavor_bot.Listener import Comment, Submission
-from requests.exceptions import RequestException
 from nose.tools import assert_equal
+import prawcore
 
 import flavor_bot.settings
 
@@ -27,7 +27,7 @@ class TestListener:
         self.counter += 1
 
     def throw(self, item):
-        raise RequestException
+        raise prawcore.exceptions.RequestException(None, None, None)
 
     def test_comment_listener(self):
         listener = Comment(self.feeder, self.handler)
