@@ -9,7 +9,8 @@ import time
 import sys
 import re
 
-from flavor_bot.helpers import log, logOk, logWarn, signalHandler, colors
+from flavor_bot.helpers import (log, logOk, logWarn, printErr, signalHandler,
+                                colors)
 from flavor_bot.Listener import Submission, Comment
 from flavor_bot.Processor import Processor
 from flavor_bot.Formatter import Markdown
@@ -70,14 +71,11 @@ try:
     logOk('Authenticated and obtained streams')
 
 except prawcore.exceptions.RequestException:
-    print('%s[ERR]%s Name resolution failed. Are you offline?' %
-          (colors.FAIL, colors.ENDC))
+    printErr('Name resolution failed. Are you offline?')
     sys.exit(1)
 
 except prawcore.exceptions.ResponseException:
-    print('%s[ERR]%s Login failed. Check client_id, '
-          'client_secret and refresh_token.' %
-          (colors.FAIL, colors.ENDC))
+    printErr('Login failed. Check client_id, client_secret and refresh_token.')
     sys.exit(1)
 
 for submission in sub.new():

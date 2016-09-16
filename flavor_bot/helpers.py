@@ -7,6 +7,10 @@ def log(message):
         print message
 
 
+def printErr(message):
+    print('%s[Err]%s %s' % (colors.FAIL, colors.ENDC, message))
+
+
 def logOk(message):
     if settings.debug:
         print('%s[OK]%s %s' % (colors.OKGREEN, colors.ENDC, message))
@@ -14,7 +18,7 @@ def logOk(message):
 
 def logErr(message):
     if settings.debug:
-        print('%s[Err]%s %s' % (colors.FAIL, colors.ENDC, message))
+        printErr(message)
 
 
 def logWarn(message):
