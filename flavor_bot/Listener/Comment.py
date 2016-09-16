@@ -1,8 +1,8 @@
-from requests.exceptions import RequestException
+import prawcore
 import time
 
 from Listener import Listener
-from flavor_bot.helpers import log
+from flavor_bot.helpers import logNote, logWarn
 
 
 class Comment(Listener):
@@ -17,10 +17,10 @@ class Comment(Listener):
                     text = comment.body
                     self.action({'op': comment, 'text': text})
                     self.processed.append(comment.id)
-                    log('Added comment to queue: %s' % (comment.id))
+                    logNote('New comment: %s' % (comment.id))
 
-        except RequestException as e:
-            log('Request failed: %s' % (e))
-            log('Sleeping for %i seconds...' % (self.timeout))
+        except prawcore.exceptions.RequestException as e:
+            logWarn('Comment stream failed. Sleeping for %i seconds...' %
+                    (self.timeout))
             time.sleep(self.timeout)
             self.run()

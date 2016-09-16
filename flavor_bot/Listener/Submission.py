@@ -1,8 +1,8 @@
-from requests.exceptions import RequestException
+import prawcore
 import time
 
 from Listener import Listener
-from flavor_bot.helpers import log
+from flavor_bot.helpers import logNote, logWarn
 
 
 class Submission(Listener):
@@ -17,10 +17,10 @@ class Submission(Listener):
                     text = submission.selftext
                     self.action({'op': submission, 'text': text})
                     self.processed.append(submission.id)
-                    log('Added submission to queue: %s' % (submission.id))
+                    logNote('New submission: %s' % (submission.id))
 
-        except RequestException as e:
-            log('Request failed: %s' % (e))
-            log('Sleeping for %i seconds...' % (self.timeout))
+        except prawcore.exceptions.RequestException as e:
+            logWarn('Submission stream failed. Sleeping for %i seconds...' %
+                    (self.timeout))
             time.sleep(self.timeout)
             self.run()

@@ -23,4 +23,4 @@ class Pool():
             worker = threading.Thread(target=self.worker)
             worker.daemon = True
             worker.start()
-            log('Worker #%i started...' % (i))
+            log('     - Worker #%i started' % (i))
