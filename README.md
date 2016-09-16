@@ -35,7 +35,7 @@ Some examples:
 * [[   Lime Tahity Cold Pressed by FA   ]]  
 * [[ Wiener Schnitzel ]]  
 * [[ Cheesecake Graham Crust by TPA ]]  
-* [[ Butter by FA ]]   
+* [[ FA Butter ]]   
 * [[ Cookie by FA ]]  
 * [[ Banana Cream by LA ]]  
 * [[ Bing Cherry ]]  
