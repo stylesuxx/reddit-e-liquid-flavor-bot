@@ -63,3 +63,18 @@ class TestProcessor:
         assert ('https://alltheflavors.com/flavors'
                 '/the-flavor-apprentice-strawberry-ripe') in result
         assert 'http://e-liquid-recipes.com/flavor/5361' in result
+
+    def test_vendor_prefixed_1(self):
+        atf = ATF()
+        elr = ELR()
+        formatter = Markdown()
+        sources = [atf, elr]
+
+        pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
+        processor = Processor(pattern, formatter, sources)
+        result = processor.process('[[ CAP Sugar Cookie ]]')
+
+        print result
+        assert ('https://alltheflavors.com/flavors/'
+                'capella-sugar-cookie') in result
+        assert 'http://e-liquid-recipes.com/flavor/115624' in result

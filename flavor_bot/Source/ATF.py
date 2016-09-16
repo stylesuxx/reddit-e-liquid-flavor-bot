@@ -43,7 +43,7 @@ class ATF(Source):
         important = terms[0]
         regex = r"" + re.escape(important) + "(\s+|$)"
         links = filter(lambda link:
-                       re.search(regex, link['text'], re.IGNORECASE), links)
+                       re.search(regex, link['machine'], re.IGNORECASE), links)
 
         # If only one is left, we are done
         if len(links) == 1:
@@ -51,13 +51,14 @@ class ATF(Source):
 
         # Filter away all hits that have more terms than the original term
         sameLength = filter(lambda link:
-                            len(link['text'].split(' ')) == len(terms),
+                            len(link['machine'].split(' ')) == len(terms),
                             links)
 
         # If none left, be a bit more loose at the second pass
         if not sameLength:
+            limit = len(terms) + 2
             sameLength = filter(lambda link:
-                                len(link['text'].split(' ')) <= len(terms) + 2,
+                                len(link['machine'].split(' ')) <= limit,
                                 links)
 
         if sameLength:
@@ -78,8 +79,9 @@ class ATF(Source):
 
             hits = tree.xpath('//tr/td[1]/a')
             links = map(lambda hit: {
-                'text': hit.text,
-                'link': self.baseUrl + hit.attrib['href']
+                'text': hit.text.strip(),
+                'link': self.baseUrl + hit.attrib['href'],
+                'machine': hit.text.strip().replace('(', '').replace(')', '')
             }, hits)
 
             link = self.filterLinks(links, term)
