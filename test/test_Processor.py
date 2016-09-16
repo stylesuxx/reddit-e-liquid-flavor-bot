@@ -47,7 +47,7 @@ class TestProcessor:
         print result
         assert ('https://alltheflavors.com/flavors'
                 '/the-flavor-apprentice-strawberry-ripe') in result
-        assert 'http://e-liquid-recipes.com/flavor/115854' in result
+        assert 'http://e-liquid-recipes.com/flavor/5361' in result
 
     def test_vendor_delimited(self):
         atf = ATF()
@@ -77,4 +77,4 @@ class TestProcessor:
         print result
         assert ('https://alltheflavors.com/flavors/'
                 'capella-sugar-cookie') in result
-        assert 'http://e-liquid-recipes.com/flavor/115624' in result
+        assert 'http://e-liquid-recipes.com/flavor/4871' in result
