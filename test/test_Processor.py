@@ -103,3 +103,17 @@ class TestProcessor:
         print result
         assert ('http://e-liquid-recipes.com/flavor/13528') in result
         assert '| Biscuit INW |' in result
+
+    def test_not_found(self):
+        atf = ATF()
+        elr = ELR()
+        formatter = Markdown()
+        sources = [atf, elr]
+
+        pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
+        processor = Processor(pattern, formatter, sources, {
+                'vendors': atf.getVendorList()})
+        result = processor.process('[[ Wiener Schnitzel ]]')
+
+        print result
+        assert '| Not found | Not found |' in result

@@ -3,6 +3,8 @@ from lxml import html
 import urllib
 import re
 
+from flavor_bot.helpers import printErr
+
 
 class ELR(Source):
     name = 'ELR'
@@ -74,6 +76,6 @@ class ELR(Source):
                 return {'text': link['text'], 'link': link['link']}
 
         except IOError:
-            print 'Failed connectiong to %s' % self.name
+            printErr(('Failed connecting to %s' % self.name))
 
         return None
