@@ -3,6 +3,8 @@ from lxml import html
 import urllib
 import re
 
+from flavor_bot.helpers import printErr
+
 
 class ELR(Source):
     name = 'ELR'
@@ -23,7 +25,7 @@ class ELR(Source):
         important = terms[0]
         regex = r"" + re.escape(important) + "(\s+|$)"
         links = filter(lambda link:
-                       re.search(regex, link['text'], re.IGNORECASE), links)
+                       re.search(regex, link['machine'], re.IGNORECASE), links)
 
         # If only one is left, we are done
         if len(links) == 1:
@@ -31,13 +33,14 @@ class ELR(Source):
 
         # Filter away all hits that have more terms than the original term
         sameLength = filter(lambda link:
-                            len(link['text'].split(' ')) == len(terms),
+                            len(link['machine'].split(' ')) == len(terms),
                             links)
 
         # If none left, be a bit more loose at the second pass
         if not sameLength:
+            limit = len(terms) + 2
             sameLength = filter(lambda link:
-                                len(link['text'].split(' ')) <= len(terms) + 2,
+                                len(link['machine'].split(' ')) <= limit,
                                 links)
 
         if sameLength:
@@ -50,7 +53,7 @@ class ELR(Source):
 
     def getTopHit(self, term):
         params = urllib.urlencode({
-            'q': term,
+            'q': self.aliasVendors(term),
             'sort': 'num_recipes',
             'direction': 'desc'
         })
@@ -64,7 +67,8 @@ class ELR(Source):
                                  '/tbody/tr/td[1]/span/a')
             allLinks = map(lambda hit: {
                 'text': hit.text,
-                'link': hit.attrib['href']
+                'link': hit.attrib['href'],
+                'machine': hit.text.strip().replace('(', '').replace(')', '')
             }, allHits)
 
             link = self.filterLinks(allLinks, term)
@@ -72,6 +76,6 @@ class ELR(Source):
                 return {'text': link['text'], 'link': link['link']}
 
         except IOError:
-            print 'Failed connectiong to %s' % self.name
+            printErr(('Failed connecting to %s' % self.name))
 
         return None

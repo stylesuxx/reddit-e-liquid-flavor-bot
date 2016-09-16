@@ -5,3 +5,4 @@ build
 MANIFEST
 files.txt
 .coverage
+nosetests.json

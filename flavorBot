@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-from Queue import Queue
 import threading
 import argparse
 import prawcore
@@ -10,124 +9,133 @@ import time
 import sys
 import re
 
+from flavor_bot.helpers import (log, logOk, logWarn, printErr, signalHandler,
+                                colors)
+from flavor_bot.Listener import Submission, Comment
 from flavor_bot.Processor import Processor
 from flavor_bot.Formatter import Markdown
 from flavor_bot.Source import ATF, ELR
+from flavor_bot import __version__
+from flavor_bot.Pool import Pool
+import flavor_bot.settings
 
 
-def signal_handler(signal, frame):
-    sys.exit(0)
+signal.signal(signal.SIGINT, signalHandler)
 
-signal.signal(signal.SIGINT, signal_handler)
-version = '0.0.4'
-userAgent = 'E-Juice Flavor Lookup %s (by /u/stylesuxx)' % (version)
+userAgent = 'E-Juice Flavor Lookup %s (by /u/stylesuxx)' % (__version__)
+
+# Regarding vendors, ATF is our source of truth, since it has the better vendor
+# mapping. This are aliases vor ATF's vendor names over on ELR
+elrAlias = {'INW': 'Inawera'}
+
+atf = ATF()
 
 elr = ELR()
-atf = ATF()
-sources = [elr, atf]
+elr.setVendorAlias(elrAlias)
 
+processed = []
+sources = [elr, atf]
 formatter = Markdown()
 pattern = re.compile('\[\[([^\]]*)\]\]', re.MULTILINE)
-pauseSeconds = 60
 
 parser = argparse.ArgumentParser(description=userAgent)
 parser.add_argument('siteName', metavar='SITENAME',
                     help='Site name to use from the config')
 parser.add_argument('-s', '--sub', dest='subreddit', metavar='SUB',
                     default='test', help='Subreddit to monitor')
+parser.add_argument('-t', '--time', dest='timeout', metavar='SEC',
+                    default=60, help='Time between failed API calls')
+parser.add_argument('-w', '--workers', dest='workers', metavar='NR',
+                    default=1, help='Nr of workers to spawn')
+parser.add_argument('-d', '--debug', dest='debug', action='store_true',
+                    help='Print debugging output')
+parser.add_argument('-p', '--print', dest='prnt', action='store_true',
+                    help='Print to shell instead of posting')
 
 args = parser.parse_args()
 siteName = args.siteName
 subreddit = args.subreddit
+timeout = args.timeout
+workers = args.workers
+debug = args.debug
+prnt = args.prnt
 
-queue = Queue()
-workers = 1
+flavor_bot.settings.init(debug)
 
 try:
     reddit = praw.Reddit(user_agent=userAgent, site_name=siteName)
     username = reddit.user.me()
+
     sub = reddit.subreddit(subreddit)
+    submissionStream = sub.stream.submissions
+    commentStream = sub.stream.comments
+    logOk('Authenticated and obtained streams')
 
 except prawcore.exceptions.RequestException:
-    print 'Name resolution failed. Are you offline?'
+    printErr('Name resolution failed. Are you offline?')
     sys.exit(1)
 
 except prawcore.exceptions.ResponseException:
-    print 'Login failed. Check client_id, client_secret and refresh_token.'
+    printErr('Login failed. Check client_id, client_secret and refresh_token.')
     sys.exit(1)
 
-processedSubmissions = []
-processedComments = []
-processor = Processor(pattern, formatter, sources, {
-                        'vendors': atf.getVendorList()
-                      })
-
-# Mark items and comments as processed, so we only care for new ones
 for submission in sub.new():
-    processedSubmissions.append(submission.id)
+    processed.append(submission.id)
+logOk('Marked old submissions as processed')
 
 for comment in sub.comments():
-    processedComments.append(comment.id)
+    processed.append(comment.id)
+logOk('Marked old comments as processed')
 
 
-def worker():
-    while True:
-        item = queue.get()
+def replyHandler(item):
+    op = item['op']
+    text = item['text']
+    posted = False
 
-        op = item['op']
-        text = item['text']
-        posted = False
+    reply = processor.process(item['text'])
+    while reply and not posted:
+        try:
+            op.reply(reply)
+            posted = True
+            logOk('Replied to: %s' % (op.id))
 
-        reply = processor.process(item['text'])
-        if(reply):
-            while not posted:
-                try:
-                    # print reply
-                    op.reply(reply)
-                    posted = True
-                    print 'Replied to: %s' % op.id
-
-                except praw.exceptions.APIException as err:
-                    print('Hit rate limit - sleeping for %i seconds...'
-                          % (pauseSeconds))
-                    time.sleep(pauseSeconds)
-
-        queue.task_done()
+        except praw.exceptions.APIException as err:
+            logWarn('Hit rate limit. Sleeping for %i seconds...' % (timeout))
+            time.sleep(timeout)
 
 
-class SubmissionListener(threading.Thread):
-    def run(self):
-        for submission in sub.stream.submissions():
-            if(submission.id not in processedSubmissions and
-               submission.author != username):
-                queue.put({'op': submission, 'text': submission.selftext})
-                processedSubmissions.append(submission.id)
-                print 'Added submission to queue: %s' % submission.id
+def printHandler(item):
+    text = item['text']
 
+    reply = processor.process(item['text'])
+    if reply:
+        print reply
 
-class CommentListener(threading.Thread):
-    def run(self):
-        for comment in sub.stream.comments():
-            if(comment.id not in processedComments and
-               comment.author != username):
-                queue.put({'op': comment, 'text': comment.body})
-                processedComments.append(comment.id)
-                print 'Added comment to queue: %s' % comment.id
+vendors = atf.getVendorList()
+processor = Processor(pattern, formatter, sources, {'vendors': vendors})
 
+handler = printHandler if prnt else replyHandler
+pool = Pool(handler)
+pool.spawn(workers)
+logOk('Spawned %i worker(s)' % (workers))
 
-submissionListener = SubmissionListener()
-commentListener = CommentListener()
-
+submissionListener = Submission(submissionStream, pool.addWork)
+submissionListener.setProcessed(processed)
+submissionListener.setTimeout(timeout)
+submissionListener.setAuthor(username)
 submissionListener.daemon = True
-commentListener.daemon = True
-
 submissionListener.start()
+logOk('Submission listener attached')
+
+commentListener = Comment(commentStream, pool.addWork)
+commentListener.setProcessed(processed)
+commentListener.setTimeout(timeout)
+commentListener.setAuthor(username)
+commentListener.daemon = True
 commentListener.start()
+logOk('Comment listener attached')
 
-for i in range(workers):
-    thread = threading.Thread(target=worker)
-    thread.daemon = True
-    thread.start()
-
+# Keep running forever, but allow CTRL + c
 while threading.active_count() > 0:
     time.sleep(0.1)

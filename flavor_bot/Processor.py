@@ -54,7 +54,7 @@ class Processor:
             if 'vendors' in self.settings:
                 vendors = self.settings['vendors']
                 for short in vendors:
-                    if searchTerm.startswith(short.lower()):
+                    if searchTerm.lower().startswith(short.lower()):
                         flavor = searchTerm[len(short):].strip()
                         term = '%s %s' % (flavor, short)
                         return term

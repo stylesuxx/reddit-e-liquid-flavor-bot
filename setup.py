@@ -1,8 +1,10 @@
 from distutils.core import setup
 
+from flavor_bot import __version__
+
 setup(
     name='flavor_bot',
-    version='0.0.3',
+    version=__version__,
     description='Post links to flavors mentioned in posts.',
     long_description=open('README.md').read(),
     author='Chris Landa',
@@ -10,4 +12,4 @@ setup(
     url='https://github.com/stylesuxx/reddit-e-liquid-flavor-bot',
     license='MIT',
     packages=['flavor_bot'],
-    scripts=['flavorBot', 'OAuth'])
+    scripts=['flavorBot'])
